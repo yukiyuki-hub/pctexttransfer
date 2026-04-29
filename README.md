@@ -3,13 +3,12 @@
 PC・スマホ間でテキストを一時転送するWebアプリです。  
 ログイン不要で、アカウント共有できない端末間でも短いテキストを受け渡せます。
 
-> **現在はDBなしのUIモックです。後でSupabaseに置き換えます。**  
-> データはブラウザの `localStorage` に保存されており、同一ブラウザ・同一端末間でのみ動作します。
+**公開URL：https://pctexttransfer.vercel.app/**
 
 ## 機能
 
 - テキストを入力して転送データを作成（6桁コード + 3文字合言葉 + QRコード生成）
-- 有効期限：作成から10分
+- 有効期限：作成から3日
 - 1回閲覧したら再表示不可
 - QRコードを読み取って受信、またはコードを手入力して受信
 - URLをコピーしてシェア
@@ -20,13 +19,16 @@ PC・スマホ間でテキストを一時転送するWebアプリです。
 - Vite 5
 - TypeScript 5
 - Tailwind CSS 3
+- Supabase（データベース）
 - qrcode.react（QRコード生成）
 - react-router-dom v6
-- デプロイ想定：Vercel
+- デプロイ：Vercel
 
 ## ローカル起動
 
 ```bash
+cp .env.example .env
+# .envにSupabaseのURLとキーを設定する
 npm install
 npm run dev
 ```
@@ -37,13 +39,11 @@ npm run dev
 |---|---|
 | `/` | 送信画面 |
 | `/receive` | コード入力による受信画面 |
-| `/r/:code?key=xxx` | QR・URL受信用画面 |
+| `/r/:token` | QR・URL受信用画面 |
 
 ## 今後の予定
 
-- [ ] Supabaseによるデータベース接続（現在はlocalStorage）
 - [ ] サーバーサイドでの有効期限管理
-- [ ] 端末をまたいだ転送の対応
 - [ ] テキストの暗号化
 
 ## 注意
