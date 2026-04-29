@@ -22,6 +22,11 @@ export function findMessage(code: string, passphrase: string): Message | null {
   return messages.find(m => m.code === code && m.passphrase === passphrase) ?? null
 }
 
+export function findMessageByToken(token: string): Message | null {
+  const messages = getMessages()
+  return messages.find(m => m.token === token) ?? null
+}
+
 export function markAsViewed(code: string): void {
   const messages = getMessages()
   const updated = messages.map(m => (m.code === code ? { ...m, isViewed: true } : m))

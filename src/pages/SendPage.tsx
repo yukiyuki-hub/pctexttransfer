@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { generateCode, generatePassphrase } from '../utils/codeGenerator'
+import { generateCode, generatePassphrase, generateToken } from '../utils/codeGenerator'
 import { saveMessage } from '../utils/storage'
 import WarningBanner from '../components/WarningBanner'
 
@@ -31,11 +31,13 @@ export default function SendPage() {
 
     const code = generateCode()
     const passphrase = generatePassphrase()
+    const token = generateToken()
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 10 * 60 * 1000)
-    const url = `${window.location.origin}/r/${code}?key=${passphrase}`
+    const url = `${window.location.origin}/r/${token}`
 
     saveMessage({
+      token,
       code,
       passphrase,
       content: text,

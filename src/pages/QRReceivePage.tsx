@@ -1,19 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useParams, useSearchParams, Link } from 'react-router-dom'
-import { findMessage, markAsViewed } from '../utils/storage'
+import { useParams, Link } from 'react-router-dom'
+import { findMessageByToken, markAsViewed } from '../utils/storage'
 import WarningBanner from '../components/WarningBanner'
 
 const ERROR_DETAILS: Record<string, string> = {
   '期限切れです': '転送データの有効期限（10分）が切れています。送信側で新しく作成してください。',
   'すでに閲覧済みです': 'このテキストはすでに受信されています。',
-  'コードまたは合言葉が違います': 'URLが正しいかご確認ください。',
-  'URLが正しくありません': 'QRコードを読み取り直してください。',
+  'URLが無効です': 'QRコードを読み取り直してください。',
 }
 
 export default function QRReceivePage() {
-  const { code } = useParams<{ code: string }>()
-  const [searchParams] = useSearchParams()
-  const passphrase = searchParams.get('key') ?? ''
+  const { code: token } = useParams<{ code: string }>()
 
   const [content, setContent] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -21,13 +18,13 @@ export default function QRReceivePage() {
   const [copyError, setCopyError] = useState('')
 
   useEffect(() => {
-    if (!code || !passphrase) {
-      setError('URLが正しくありません')
+    if (!token) {
+      setError('URLが無効です')
       return
     }
-    const msg = findMessage(code, passphrase)
+    const msg = findMessageByToken(token)
     if (!msg) {
-      setError('コードまたは合言葉が違います')
+      setError('URLが無効です')
       return
     }
     if (new Date() > new Date(msg.expiresAt)) {
@@ -38,9 +35,9 @@ export default function QRReceivePage() {
       setError('すでに閲覧済みです')
       return
     }
-    markAsViewed(code)
+    markAsViewed(msg.code)
     setContent(msg.content)
-  }, [code, passphrase])
+  }, [token])
 
   const handleCopy = async () => {
     if (content === null) return
