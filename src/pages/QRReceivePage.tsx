@@ -4,7 +4,7 @@ import { findMessageByToken, markAsViewed } from '../utils/storage'
 import WarningBanner from '../components/WarningBanner'
 
 const ERROR_DETAILS: Record<string, string> = {
-  '期限切れです': '転送データの有効期限（10分）が切れています。送信側で新しく作成してください。',
+  '期限切れです': '転送データの有効期限（3日）が切れています。送信側で新しく作成してください。',
   'すでに閲覧済みです': 'このテキストはすでに受信されています。',
   'URLが無効です': 'QRコードを読み取り直してください。',
 }
