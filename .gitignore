@@ -1,0 +1,23 @@
+# 機密情報
+.env
+.env.local
+.env.*.local
+
+# 外部ライブラリ
+node_modules/
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# エディタ設定
+.vscode/
+.idea/
+
+# ログ
+*.log
+npm-debug.log*
+
+# ビルド成果物
+dist/
+build/
