@@ -9,24 +9,34 @@ export default function ReceivePage() {
   const [error, setError] = useState('')
   const [content, setContent] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleReceive = () => {
+  const handleReceive = async () => {
     setError('')
-    const msg = findMessage(code.trim(), passphrase.trim().toLowerCase())
-    if (!msg) {
-      setError('コードまたは合言葉が違います')
-      return
+    setLoading(true)
+    try {
+      // Supabaseからコードと合言葉でメッセージを検索する
+      const msg = await findMessage(code.trim(), passphrase.trim().toLowerCase())
+      if (!msg) {
+        setError('コードまたは合言葉が違います')
+        return
+      }
+      if (new Date() > new Date(msg.expiresAt)) {
+        setError('期限切れです')
+        return
+      }
+      if (msg.isViewed) {
+        setError('すでに閲覧済みです')
+        return
+      }
+      // tokenで閲覧済みにマークする
+      await markAsViewed(msg.token)
+      setContent(msg.content)
+    } catch (_e) {
+      setError('通信エラーが発生しました')
+    } finally {
+      setLoading(false)
     }
-    if (new Date() > new Date(msg.expiresAt)) {
-      setError('期限切れです')
-      return
-    }
-    if (msg.isViewed) {
-      setError('すでに閲覧済みです')
-      return
-    }
-    markAsViewed(code.trim())
-    setContent(msg.content)
   }
 
   const handleCopy = async () => {
@@ -129,10 +139,10 @@ export default function ReceivePage() {
 
         <button
           onClick={handleReceive}
-          disabled={code.length !== 6 || passphrase.length !== 3}
+          disabled={code.length !== 6 || passphrase.length !== 3 || loading}
           className="mt-6 w-full rounded-xl bg-blue-600 py-4 text-lg font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
-          受信する
+          {loading ? '受信中...' : '受信する'}
         </button>
 
         <Link to="/" className="mt-4 block text-center text-sm text-blue-600 hover:underline">

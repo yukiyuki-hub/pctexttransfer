@@ -7,9 +7,11 @@ const ERROR_DETAILS: Record<string, string> = {
   '期限切れです': '転送データの有効期限（3日）が切れています。送信側で新しく作成してください。',
   'すでに閲覧済みです': 'このテキストはすでに受信されています。',
   'URLが無効です': 'QRコードを読み取り直してください。',
+  '通信エラーが発生しました': 'ネットワーク接続を確認してからページを再読み込みしてください。',
 }
 
 export default function QRReceivePage() {
+  // ルートパラメータからトークンを取得する（/r/:code のcodeがtoken）
   const { code: token } = useParams<{ code: string }>()
 
   const [content, setContent] = useState<string | null>(null)
@@ -18,25 +20,35 @@ export default function QRReceivePage() {
   const [copyError, setCopyError] = useState('')
 
   useEffect(() => {
-    if (!token) {
-      setError('URLが無効です')
-      return
+    // useEffect内で非同期処理を扱うため内部関数として定義する
+    const load = async () => {
+      if (!token) {
+        setError('URLが無効です')
+        return
+      }
+      try {
+        // Supabaseからトークンでメッセージを検索する
+        const msg = await findMessageByToken(token)
+        if (!msg) {
+          setError('URLが無効です')
+          return
+        }
+        if (new Date() > new Date(msg.expiresAt)) {
+          setError('期限切れです')
+          return
+        }
+        if (msg.isViewed) {
+          setError('すでに閲覧済みです')
+          return
+        }
+        // 閲覧済みにマークしてからコンテンツを表示する
+        await markAsViewed(msg.token)
+        setContent(msg.content)
+      } catch (_e) {
+        setError('通信エラーが発生しました')
+      }
     }
-    const msg = findMessageByToken(token)
-    if (!msg) {
-      setError('URLが無効です')
-      return
-    }
-    if (new Date() > new Date(msg.expiresAt)) {
-      setError('期限切れです')
-      return
-    }
-    if (msg.isViewed) {
-      setError('すでに閲覧済みです')
-      return
-    }
-    markAsViewed(msg.code)
-    setContent(msg.content)
+    load()
   }, [token])
 
   const handleCopy = async () => {
