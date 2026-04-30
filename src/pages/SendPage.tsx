@@ -34,7 +34,7 @@ export default function SendPage() {
     const passphrase = generatePassphrase()
     const token = generateToken()
     const now = new Date()
-    const expiresAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
+    const expiresAt = new Date(now.getTime() + 30 * 60 * 1000)
     const url = `${window.location.origin}/r/${token}`
 
     setLoading(true)
@@ -127,7 +127,7 @@ export default function SendPage() {
           </div>
 
           <p className="mt-4 text-center text-sm font-medium text-orange-600">
-            3日後に無効になります
+            30分後に無効になります
           </p>
 
           {error && <p className="mt-2 text-center text-sm text-red-600">{error}</p>}
